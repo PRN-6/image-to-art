@@ -50,12 +50,14 @@ def main():
             
             print(f"\nProcessing ID {image_id} ({desc})...")
             
-            # 1. Download the specific style model if we don't have it
-            model_path = os.path.join(PROJECT_ROOT, style)
+            # 1. Setup Style Model Path
+            models_dir = os.path.join(PROJECT_ROOT, "models")
+            model_path = os.path.join(models_dir, style)
             if not os.path.exists(model_path):
                 print(f"  Warning: Model {style} not found. Using starry_night.t7 instead.")
-                model_path = os.path.join(PROJECT_ROOT, "starry_night.t7")
-                download_if_missing(model_path, STYLE_MODEL_URL)
+                model_path = os.path.join(models_dir, "starry_night.t7")
+                if not os.path.exists(model_path):
+                    download_if_missing(model_path, STYLE_MODEL_URL)
             
             # 2. Setup Input Image
             input_to_process = os.path.join(PROJECT_ROOT, url)

@@ -1,8 +1,8 @@
 image_id,image_url,description,style_model
-1,dataset/input/1.jpg,Local Image 1,starry_night.t7
-2,dataset/input/1743586851811.jpg,Local Image 2,starry_night.t7
-3,dataset/input/building.jpg,Local Building,starry_night.t7
-4,dataset/input/cat.jpg,Local Cat,starry_night.t7
-5,dataset/input/content.jpg,Local Content,starry_night.t7
+1,dataset/input/1.jpg,Local Image 1,la_muse.t7
+2,dataset/input/1743586851811.jpg,Local Image 2,mosaic.t7
+3,dataset/input/building.jpg,Local Building,candy.t7
+4,dataset/input/cat.jpg,Local Cat,the_scream.t7
+5,dataset/input/content.jpg,Local Content,udnie.t7
 6,dataset/input/dog.jpg,Local Dog,starry_night.t7
-7,dataset/input/mainprofilepic.jpeg,Main Profile,starry_night.t7
+7,dataset/input/mainprofilepic.jpeg,Main Profile,mosaic.t7

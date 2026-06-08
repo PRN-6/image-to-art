@@ -83,11 +83,11 @@ if __name__ == "__main__":
                 input_image = os.path.join(default_input_dir, images[0])
             else:
                 print("Error: No images found in dataset/input/")
-                print("Usage: python style_transfer.py <path_to_image>")
+                print("Usage: python style_transfer.py <path_to_image> [model.t7]")
                 sys.exit(1)
         else:
             print("Error: No image specified and dataset/input/ folder not found.")
-            print("Usage: python style_transfer.py <path_to_image>")
+            print("Usage: python style_transfer.py <path_to_image> [model.t7]")
             sys.exit(1)
 
     # Resolve full path
@@ -98,15 +98,31 @@ if __name__ == "__main__":
         print(f"Error: Image not found: {input_image}")
         sys.exit(1)
 
-    # Ensure we have the style model
-    model_path = os.path.join(SCRIPT_DIR, "starry_night.t7")
-    download_if_missing(model_path, STYLE_MODEL_URL)
+    # Determine the model path
+    models_dir = os.path.join(SCRIPT_DIR, "models")
+    os.makedirs(models_dir, exist_ok=True)
+
+    if len(sys.argv) > 2:
+        model_name = sys.argv[2]
+        model_path = os.path.join(models_dir, model_name)
+    else:
+        model_path = os.path.join(models_dir, "starry_night.t7")
+        
+    if not os.path.exists(model_path):
+        # We only auto-download starry_night for fallback
+        if "starry_night.t7" in model_path:
+            download_if_missing(model_path, STYLE_MODEL_URL)
+        else:
+            print(f"Error: Model not found at {model_path}.")
+            print("Please ensure the model exists in the models/ directory.")
+            sys.exit(1)
 
     # Generate output filename
     base_name = os.path.splitext(os.path.basename(input_image))[0]
+    model_base = os.path.splitext(os.path.basename(model_path))[0]
     output_dir = os.path.join(SCRIPT_DIR, "dataset", "csv_output")
     os.makedirs(output_dir, exist_ok=True)
-    output_path = os.path.join(output_dir, f"art_{base_name}.jpg")
+    output_path = os.path.join(output_dir, f"art_{base_name}_{model_base}.jpg")
 
     print("==================================================")
     print("  Neural Style Transfer - Single Image Mode")

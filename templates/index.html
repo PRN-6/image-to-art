@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Style Transfer - Turn Your Photos Into Art</title>
+    <meta name="description" content="An AI-powered application that turns your photos into stunning artworks using neural style transfer.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        appBg: '#022c22', // emerald-950
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-appBg text-emerald-50 min-h-screen flex flex-col relative overflow-x-hidden">
+    <!-- Animated Background via custom CSS -->
+    <div class="background-animation"></div>
+    
+    <header class="py-8 text-center">
+        <div class="container mx-auto px-4">
+            <h1 class="font-display text-4xl md:text-5xl font-extrabold tracking-tight mb-2 text-transparent bg-clip-text bg-gradient-to-br from-white to-emerald-100">
+                Neural<span class="bg-clip-text text-transparent bg-gradient-to-br from-emerald-400 to-teal-400">Art</span>
+            </h1>
+            <p class="text-emerald-200/70 text-lg">Transform your memories into masterpieces</p>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center py-8 container mx-auto px-4 max-w-5xl">
+        <!-- Glassmorphism Card -->
+        <div class="bg-emerald-900/30 backdrop-blur-md border border-emerald-500/20 rounded-3xl p-6 md:p-10 w-full shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] transition-all duration-300">
+            
+            <div id="upload-section" class="w-full transition-all">
+                <div id="drop-zone" class="border-2 border-dashed border-emerald-500/30 rounded-2xl p-10 md:p-16 text-center cursor-pointer transition-all duration-300 bg-emerald-950/40 hover:bg-emerald-500/10 hover:border-emerald-400 group">
+                    <div class="flex flex-col items-center justify-center">
+                        <svg class="w-16 h-16 text-emerald-400 mb-6 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <h3 class="font-display text-2xl mb-2 text-white">Drag & Drop your image here</h3>
+                        <p class="text-emerald-200/60 mb-6">or</p>
+                        <label for="file-input" class="inline-block px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg cursor-pointer transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_0_rgba(16,185,129,0.39)]">
+                            Browse Files
+                        </label>
+                        <input type="file" id="file-input" accept="image/png, image/jpeg, image/jpg" class="hidden">
+                        <p class="text-sm text-emerald-200/50 mt-6">Supports: JPG, PNG (Max 16MB)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="preview-section" class="hidden w-full transition-all">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <!-- Original Image -->
+                    <div class="flex flex-col">
+                        <h4 class="font-display text-xl text-center text-emerald-100 mb-4">Original Image</h4>
+                        <div class="bg-black/20 border border-emerald-500/20 rounded-xl aspect-square flex items-center justify-center overflow-hidden">
+                            <img id="input-preview" src="" alt="Original Image" class="max-w-full max-h-full object-contain rounded-xl">
+                        </div>
+                    </div>
+                    
+                    <!-- Output Image -->
+                    <div class="flex flex-col relative">
+                        <h4 class="font-display text-xl text-center text-emerald-100 mb-4">Stylized Result</h4>
+                        <div id="output-container" class="skeleton-container border border-emerald-500/20 rounded-xl aspect-square flex items-center justify-center overflow-hidden relative">
+                            <!-- Processing Overlay -->
+                            <div id="processing-overlay" class="hidden absolute inset-0 bg-emerald-950/80 backdrop-blur-sm flex flex-col items-center justify-center z-10">
+                                <div class="w-10 h-10 border-4 border-emerald-500/20 border-t-emerald-400 rounded-full animate-spin mb-4"></div>
+                                <p class="text-white font-medium">Applying Magic...</p>
+                            </div>
+                            <img id="output-preview" src="" alt="Stylized Result" class="hidden max-w-full max-h-full object-contain rounded-xl">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center mb-6">
+                    <label for="model-select" class="text-emerald-100 mb-2 font-medium">Choose an Art Style:</label>
+                    <select id="model-select" class="bg-emerald-950/80 border border-emerald-500/30 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-all">
+                        <option value="starry_night">Starry Night (Van Gogh)</option>
+                        <option value="la_muse">La Muse (Picasso)</option>
+                        <option value="composition_vii">Composition VII (Kandinsky)</option>
+                        <option value="the_wave">The Great Wave (Hokusai)</option>
+                        <option value="mosaic">Mosaic</option>
+                        <option value="candy">Candy</option>
+                        <option value="the_scream">The Scream (Munch)</option>
+                        <option value="udnie">Udnie (Picabia)</option>
+                    </select>
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button id="reset-btn" class="px-6 py-3 bg-transparent border border-emerald-500/30 hover:bg-emerald-500/10 text-white font-semibold rounded-lg transition-all">
+                        Try Another Image
+                    </button>
+                    <button id="stylize-btn" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:-translate-y-0.5">
+                        Stylize Image
+                    </button>
+                    <a href="#" id="download-btn" class="hidden px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:-translate-y-0.5" download>
+                        Download Art
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="py-8 text-center text-emerald-200/40 text-sm mt-auto">
+        <p>&copy; 2026 NeuralArt Project. Powered by Deep Learning.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Inject JS to allow dragover styling on tailwind
+        const dropZoneEl = document.getElementById('drop-zone');
+        dropZoneEl.addEventListener('dragover', () => {
+            dropZoneEl.classList.add('border-emerald-400', 'bg-emerald-500/10');
+        });
+        dropZoneEl.addEventListener('dragleave', () => {
+            dropZoneEl.classList.remove('border-emerald-400', 'bg-emerald-500/10');
+        });
+        dropZoneEl.addEventListener('drop', () => {
+            dropZoneEl.classList.remove('border-emerald-400', 'bg-emerald-500/10');
+        });
+    </script>
+</body>
+</html>
