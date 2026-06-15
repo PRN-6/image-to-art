@@ -9,7 +9,12 @@ This is a Machine Learning project that transforms regular images into stylized 
 
 ## Setup
 
-1. Install requirements:
+1. Activate the virtual environment:
+```bash
+source venv/bin/activate
+```
+
+2. Install requirements:
 ```bash
 pip install -r requirements.txt
 ```
